@@ -30,11 +30,11 @@ jobs:
           path: ${{ steps.run-tests.outputs.coverage-report-path }}  # Use the output from the previous step to upload the report
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{ steps.run-tests.outputs.coverage-report-path }}/*.cobertura.xml
-          flags: unittests
           name: codecov-coverage
+          slug: alsi-lawr/alsi.healthcheck
           fail_ci_if_error: true
 
