@@ -1,5 +1,5 @@
-is_global = true
-
+[*.cs]
+dotnet_diagnostic.CA2252.severity = none
 dotnet_diagnostic.SA1101.severity = none
 dotnet_diagnostic.SA1309.severity = none
 dotnet_diagnostic.SA1310.severity = none
