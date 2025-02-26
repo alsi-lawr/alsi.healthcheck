@@ -9,6 +9,7 @@
     <PackageVersion Include="Npgsql" Version="9.0.3" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0" />
     <PackageVersion Include="ALSI.NetStandard.Compat" Version="1.0.0" />
     <!-- Test only -->
     <PackageVersion Include="coverlet.msbuild" Version="6.0.2" />
