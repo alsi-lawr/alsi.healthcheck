@@ -38,18 +38,18 @@ public static class ApiHealthCheck
     /// </returns>
     public static HealthCheck Create(
         string name,
-        Func<HttpClient> httpClientFactory,
+        Func<IServiceProvider, HttpClient> httpClientFactory,
         string requestUri,
         HttpMethod? httpMethod = null,
         HttpStatusCode expectedStatusCode = HttpStatusCode.OK
     ) =>
         new(
             name,
-            async context =>
+            async (sp, context) =>
             {
                 try
                 {
-                    using HttpClient client = httpClientFactory();
+                    using HttpClient client = httpClientFactory(sp);
                     using HttpRequestMessage request =
                         new(httpMethod ?? HttpMethod.Get, requestUri);
                     HttpResponseMessage response = await client
@@ -66,4 +66,29 @@ public static class ApiHealthCheck
                 }
             }
         );
+
+    /// <summary>
+    /// Creates a health check for an external API endpoint.
+    /// </summary>
+    /// <param name="name">A unique name for the health check.</param>
+    /// <param name="httpClientFactory">
+    /// A function that returns an instance of <see cref="HttpClient"/> used to perform the API request.
+    /// </param>
+    /// <param name="requestUri">The URI of the API endpoint to test.</param>
+    /// <param name="httpMethod">
+    /// The HTTP method to use for the request. Defaults to GET if not specified.
+    /// </param>
+    /// <param name="expectedStatusCode">
+    /// The HTTP status code that indicates the API is healthy. Defaults to 200 (OK).
+    /// </param>
+    /// <returns>
+    /// A <see cref="HealthCheck"/> that executes the API request and returns the corresponding health status.
+    /// </returns>
+    public static HealthCheck Create(
+        string name,
+        Func<HttpClient> httpClientFactory,
+        string requestUri,
+        HttpMethod? httpMethod = null,
+        HttpStatusCode expectedStatusCode = HttpStatusCode.OK
+    ) => Create(name, _ => httpClientFactory(), requestUri, httpMethod, expectedStatusCode);
 }

@@ -37,7 +37,7 @@ public record HealthCheckBuilder
     public HealthCheckBuilder AddCheck<T>(Func<HealthCheckContext, Task<HealthStatus>> check)
         where T : notnull
     {
-        _checks.Add(new HealthCheck<T>(typeof(T).Name, check));
+        _checks.Add(new HealthCheck<T>(typeof(T).Name, (_, ctx) => check(ctx)));
         return this;
     }
 
@@ -52,6 +52,42 @@ public record HealthCheckBuilder
     public HealthCheckBuilder AddCheck(
         string name,
         Func<HealthCheckContext, Task<HealthStatus>> check
+    )
+    {
+        _checks.Add(new HealthCheck(name, (_, ctx) => check(ctx)));
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a generic health check for a given type.
+    /// </summary>
+    /// <typeparam name="T">
+    /// The identifier type for this health check.
+    /// </typeparam>
+    /// <param name="check">
+    /// An asynchronous function that evaluates health using a <see cref="HealthCheckContext"/>.
+    /// </param>
+    /// <returns>This builder instance.</returns>
+    public HealthCheckBuilder AddCheck<T>(
+        Func<IServiceProvider, HealthCheckContext, Task<HealthStatus>> check
+    )
+        where T : notnull
+    {
+        _checks.Add(new HealthCheck<T>(typeof(T).Name, check));
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a generic health check for a given type.
+    /// </summary>
+    /// <param name="name">Name of the health check.</param>
+    /// <param name="check">
+    /// An asynchronous function that evaluates health using a <see cref="HealthCheckContext"/>.
+    /// </param>
+    /// <returns>This builder instance.</returns>
+    public HealthCheckBuilder AddCheck(
+        string name,
+        Func<IServiceProvider, HealthCheckContext, Task<HealthStatus>> check
     )
     {
         _checks.Add(new HealthCheck(name, check));
@@ -69,7 +105,10 @@ public record HealthCheckBuilder
         where T : MonitoredBackgroundService
     {
         _checks.Add(
-            new HealthCheck<T>(typeof(T).Name, ctx => Task.FromResult(ctx.GetServiceStatus<T>()))
+            new HealthCheck<T>(
+                typeof(T).Name,
+                (_, ctx) => Task.FromResult(ctx.GetServiceStatus<T>())
+            )
         );
         return this;
     }
@@ -123,6 +162,66 @@ public record HealthCheckBuilder
     public HealthCheckBuilder AddMonitoredApiRoute(
         string name,
         Func<HttpClient> clientFactory,
+        string requestUri,
+        HttpMethod? httpMethod = null,
+        HttpStatusCode expectedStatusCode = HttpStatusCode.OK
+    )
+    {
+        _checks.Add(
+            ApiHealthCheck.Create(name, clientFactory, requestUri, httpMethod, expectedStatusCode)
+        );
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a health check for a database provider.
+    /// </summary>
+    /// <typeparam name="TConnection">
+    /// The specific type of <see cref="DbConnection"/> used by the provider.
+    /// </typeparam>
+    /// <param name="name">
+    /// A unique name for the health check.
+    /// </param>
+    /// <param name="connectionFactory">
+    /// A delegate that creates a new instance of <typeparamref name="TConnection"/>.
+    /// </param>
+    /// <param name="testQuery">
+    /// The SQL query used to verify connectivity (default is <c>"SELECT 1;"</c>).
+    /// </param>
+    /// <returns>This builder instance.</returns>
+    public HealthCheckBuilder AddMonitoredDatabaseConnection<TConnection>(
+        string name,
+        Func<IServiceProvider, TConnection> connectionFactory,
+        string testQuery = "SELECT 1;"
+    )
+        where TConnection : DbConnection
+    {
+        _checks.Add(DatabaseHealthCheck.Create(name, connectionFactory, testQuery));
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a health check for an external API endpoint.
+    /// </summary>
+    /// <param name="name">
+    /// A unique name for the health check.
+    /// </param>
+    /// <param name="clientFactory">
+    /// A delegate that provides an instance of <see cref="HttpClient"/>.
+    /// </param>
+    /// <param name="requestUri">
+    /// The URI of the API endpoint to test.
+    /// </param>
+    /// <param name="httpMethod">
+    /// The HTTP method to use (defaults to GET if not specified).
+    /// </param>
+    /// <param name="expectedStatusCode">
+    /// The status code indicating a healthy API (defaults to 200 OK).
+    /// </param>
+    /// <returns>This builder instance.</returns>
+    public HealthCheckBuilder AddMonitoredApiRoute(
+        string name,
+        Func<IServiceProvider, HttpClient> clientFactory,
         string requestUri,
         HttpMethod? httpMethod = null,
         HttpStatusCode expectedStatusCode = HttpStatusCode.OK

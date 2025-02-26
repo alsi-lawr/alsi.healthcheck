@@ -10,7 +10,10 @@ using System;
 /// Represents a health check with a unique name and an asynchronous function
 /// that evaluates the health status based on a given <see cref="HealthCheckContext"/>.
 /// </summary>
-public record HealthCheck(string Name, Func<HealthCheckContext, Task<HealthStatus>> Check);
+public record HealthCheck(
+    string Name,
+    Func<IServiceProvider, HealthCheckContext, Task<HealthStatus>> Check
+);
 
 /// <summary>
 /// Represents a strongly-typed health check associated with a specific provider or component type.
@@ -34,6 +37,9 @@ public record HealthCheck<T> : HealthCheck
     /// This constructor is internal, ensuring that instances of <see cref="HealthCheck{T}"/> can only be created
     /// within the assembly, thereby enforcing controlled instantiation.
     /// </remarks>
-    internal HealthCheck(string name, Func<HealthCheckContext, Task<HealthStatus>> check)
+    internal HealthCheck(
+        string name,
+        Func<IServiceProvider, HealthCheckContext, Task<HealthStatus>> check
+    )
         : base(name, check) { }
 }

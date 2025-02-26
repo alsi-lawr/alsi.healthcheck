@@ -25,6 +25,7 @@ internal class HostedHealthChecker<TContextSerializer> : BackgroundService
 #endif
 {
     private readonly ILogger<HostedHealthChecker<TContextSerializer>> _logger;
+    private readonly IServiceProvider _serviceProvider;
     private readonly IServiceHealthRegistry _healthRegistry;
     private readonly HealthChecks _healthChecks;
     private readonly HealthCheckOptions _config;
@@ -34,17 +35,20 @@ internal class HostedHealthChecker<TContextSerializer> : BackgroundService
     /// Initialises a new instance of the <see cref="HostedHealthChecker{TContextSerializer}"/> class.
     /// </summary>
     /// <param name="logger">Logger.</param>
+    /// <param name="serviceProvider">The service provider.</param>
     /// <param name="healthRegistry">The service health registry.</param>
     /// <param name="healthChecks">Health checks.</param>
     /// <param name="config">Configuration.</param>
     public HostedHealthChecker(
         ILogger<HostedHealthChecker<TContextSerializer>> logger,
+        IServiceProvider serviceProvider,
         IServiceHealthRegistry healthRegistry,
         HealthChecks healthChecks,
         IOptions<HealthCheckOptions> config
     )
     {
         _logger = logger;
+        _serviceProvider = serviceProvider;
         _healthRegistry = healthRegistry;
         _healthChecks = healthChecks;
         _config = config.Value;
@@ -103,7 +107,7 @@ internal class HostedHealthChecker<TContextSerializer> : BackgroundService
         var ctx = new HealthCheckContext(_healthRegistry, stoppingToken);
         foreach (var check in _healthChecks)
         {
-            var status = await check.Check(ctx);
+            var status = await check.Check(_serviceProvider, ctx);
             ctx = ctx.SetItem(check.Name, status);
         }
 

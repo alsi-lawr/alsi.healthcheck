@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ALSI.HealthCheck.Context;
 using ALSI.HealthCheck.Monitoring;
+using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
 
@@ -32,9 +33,10 @@ public class ApiHealthCheckTests
         {
             State = new HealthState(DateTime.UtcNow, HealthStatus.Healthy),
         };
+        IServiceProvider serviceProvider = new ServiceCollection().BuildServiceProvider();
 
         // Act
-        HealthStatus result = await healthCheck.Check(context);
+        HealthStatus result = await healthCheck.Check(serviceProvider, context);
 
         // Assert
         result.ShouldBe(HealthStatus.Healthy);
@@ -57,9 +59,10 @@ public class ApiHealthCheckTests
         {
             State = new HealthState(DateTime.UtcNow, HealthStatus.Healthy),
         };
+        IServiceProvider serviceProvider = new ServiceCollection().BuildServiceProvider();
 
         // Act
-        HealthStatus result = await healthCheck.Check(context);
+        HealthStatus result = await healthCheck.Check(serviceProvider, context);
 
         // Assert
         result.ShouldBe(HealthStatus.Unhealthy);
@@ -90,9 +93,10 @@ public class ApiHealthCheckTests
         {
             State = new HealthState(DateTime.UtcNow, HealthStatus.Healthy),
         };
+        IServiceProvider serviceProvider = new ServiceCollection().BuildServiceProvider();
 
         // Act
-        HealthStatus result = await healthCheck.Check(context);
+        HealthStatus result = await healthCheck.Check(serviceProvider, context);
 
         // Assert
         result.ShouldBe(HealthStatus.Unhealthy);

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using ALSI.HealthCheck.Context;
 using ALSI.HealthCheck.Monitoring;
 using ALSI.HealthCheck.UnitTests.DummyDb;
+using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
 
@@ -32,12 +33,13 @@ public class DatabaseHealthCheckTests
         {
             State = new HealthState(DateTime.UtcNow, HealthStatus.Healthy),
         };
+        IServiceProvider serviceProvider = new ServiceCollection().BuildServiceProvider();
 
         // Act
-        HealthStatus status = await healthCheck.Check(context);
+        HealthStatus result = await healthCheck.Check(serviceProvider, context);
 
         // Assert
-        status.ShouldBe(HealthStatus.Healthy);
+        result.ShouldBe(HealthStatus.Healthy);
     }
 
     [Fact]
@@ -55,11 +57,12 @@ public class DatabaseHealthCheckTests
         {
             State = new HealthState(DateTime.UtcNow, HealthStatus.Healthy),
         };
+        IServiceProvider serviceProvider = new ServiceCollection().BuildServiceProvider();
 
         // Act
-        HealthStatus status = await healthCheck.Check(context);
+        HealthStatus result = await healthCheck.Check(serviceProvider, context);
 
         // Assert
-        status.ShouldBe(HealthStatus.Unhealthy);
+        result.ShouldBe(HealthStatus.Unhealthy);
     }
 }

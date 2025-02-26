@@ -42,17 +42,17 @@ public static class DatabaseHealthCheck
     /// </remarks>
     public static HealthCheck Create<TConnection>(
         string name,
-        Func<TConnection> connectionFactory,
+        Func<IServiceProvider, TConnection> connectionFactory,
         string testQuery = "SELECT 1;"
     )
         where TConnection : DbConnection =>
         new(
             name,
-            async context =>
+            async (sp, context) =>
             {
                 try
                 {
-                    await using TConnection connection = connectionFactory();
+                    await using TConnection connection = connectionFactory(sp);
                     await connection.OpenAsync(context.CancellationToken);
 
                     await using var command = connection.CreateCommand();
@@ -68,4 +68,32 @@ public static class DatabaseHealthCheck
                 }
             }
         );
+
+    /// <summary>
+    /// Creates a health check for a database provider.
+    /// </summary>
+    /// <typeparam name="TConnection">
+    /// The specific type of <see cref="DbConnection"/> used by the database provider.
+    /// </typeparam>
+    /// <param name="name">A unique name for the health check.</param>
+    /// <param name="connectionFactory">
+    /// A delegate that creates a new instance of <typeparamref name="TConnection"/> when invoked.
+    /// </param>
+    /// <param name="testQuery">
+    /// The SQL query to execute as the health check test. Defaults to <c>"SELECT 1;"</c>.
+    /// </param>
+    /// <returns>
+    /// A <see cref="HealthCheck"/> instance that encapsulates the logic for validating the database connection.
+    /// </returns>
+    /// <remarks>
+    /// The returned health check opens a connection using the provided factory, executes the specified test query,
+    /// and returns <see cref="HealthStatus.Healthy"/> if the operation completes successfully.
+    /// Any exception encountered during the process results in a <see cref="HealthStatus.Unhealthy"/> status.
+    /// </remarks>
+    public static HealthCheck Create<TConnection>(
+        string name,
+        Func<TConnection> connectionFactory,
+        string testQuery = "SELECT 1;"
+    )
+        where TConnection : DbConnection => Create(name, (_) => connectionFactory(), testQuery);
 }
