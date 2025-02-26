@@ -5,7 +5,8 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<Description>A dotnet library to provide a fluent healthcheck service.</Description>
 		<PackageTags>casing conversion string-manipulation cases csharp dotnet</PackageTags>
-		<PackageLicenceFile>LICENCE</PackageLicenceFile>
+        <PackageLicenceFile>LICENCE</PackageLicenceFile>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
 	</PropertyGroup>
 	<PropertyGroup>
 		<NoWarn>$(NoWarn);NU1507;CS8618;CA2252</NoWarn>
