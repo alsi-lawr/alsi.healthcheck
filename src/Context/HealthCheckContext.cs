@@ -59,5 +59,5 @@ public record HealthCheckContext
             ? value
             : HealthStatus.Lost;
 
-    internal HealthState State { get; init; }
+    internal HealthState State { get; init; } = new(DateTime.Now, HealthStatus.Unknown);
 }
