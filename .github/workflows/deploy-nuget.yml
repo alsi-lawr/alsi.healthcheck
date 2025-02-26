@@ -1,0 +1,49 @@
+name: NuGet Deployment
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*.*.*'
+
+jobs:
+  deploy-nuget-prerelease:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Get Previous tag
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1.4.0"
+        with:
+          fallback: 0.0.0
+
+      - name: Deploy to NuGet
+        uses: alsi-lawr/deploy-nuget@v1
+        with:
+          project: 'src'
+          version: '${{ steps.previoustag.outputs.tag }}-rc.${{ github.run_number }}'
+          nuget-api-key: ${{ secrets.NUGET_API_KEY }}
+          dotnet-version: '8.0'
+
+  deploy-nuget-release:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Deploy to NuGet
+        uses: alsi-lawr/deploy-nuget@v1
+        with:
+          project: 'src'
+          version: ${{ github.ref_name }}
+          nuget-api-key: ${{ secrets.NUGET_API_KEY }}
+          dotnet-version: '8.0'

@@ -1,0 +1,40 @@
+name: 'Run unit tests'
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Test and generate report
+        id: run-tests
+        uses: alsi-lawr/dotnet-test-coverlet@v1
+        with:
+          dotnet-version: '8.0'
+          project: 'tests/unit'
+          threshold: 0
+
+      - name: Upload report to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ${{ steps.run-tests.outputs.coverage-report-path }}  # Use the output from the previous step to upload the report
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{ steps.run-tests.outputs.coverage-report-path }}/*.cobertura.xml
+          flags: unittests
+          name: codecov-coverage
+          fail_ci_if_error: true
+
