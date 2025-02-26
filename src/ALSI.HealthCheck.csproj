@@ -7,7 +7,9 @@
 		<PackageTags>casing conversion string-manipulation cases csharp dotnet</PackageTags>
 		<PackageLicenceFile>LICENCE</PackageLicenceFile>
 	</PropertyGroup>
-
+	<PropertyGroup>
+		<NoWarn>$(NoWarn);NU1507;CS8618;CA2252</NoWarn>
+	</PropertyGroup>
 	<ItemGroup>
 		<None Include="../README.md" Pack="true" PackagePath="" />
 		<None Include="../LICENCE" Pack="true" PackagePath="" />

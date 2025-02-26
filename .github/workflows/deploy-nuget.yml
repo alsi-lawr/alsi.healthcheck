@@ -29,7 +29,7 @@ jobs:
           project: 'src'
           version: '${{ steps.previoustag.outputs.tag }}-rc.${{ github.run_number }}'
           nuget-api-key: ${{ secrets.NUGET_API_KEY }}
-          dotnet-version: '8.0'
+          dotnet-version: '9.0'
 
   deploy-nuget-release:
     if: startsWith(github.ref, 'refs/tags/')
@@ -46,4 +46,4 @@ jobs:
           project: 'src'
           version: ${{ github.ref_name }}
           nuget-api-key: ${{ secrets.NUGET_API_KEY }}
-          dotnet-version: '8.0'
+          dotnet-version: '9.0'
