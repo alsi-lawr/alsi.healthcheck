@@ -19,7 +19,7 @@ jobs:
         id: run-tests
         uses: alsi-lawr/dotnet-test-coverlet@v1
         with:
-          dotnet-version: '8.0'
+          dotnet-version: '10.0'
           project: 'tests/unit'
           threshold: 0
 

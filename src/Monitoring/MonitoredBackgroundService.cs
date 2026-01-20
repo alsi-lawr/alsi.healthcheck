@@ -78,7 +78,7 @@ public abstract class MonitoredBackgroundService : BackgroundService
     /// <inheritdoc/>
     protected sealed override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        _healthRegistry.SetStatus(ServiceName, false);
+        _healthRegistry.SetStatus(ServiceName, true);
         await OnExecuteAsync(cancellationToken);
     }
 
@@ -110,6 +110,5 @@ public abstract class MonitoredBackgroundService : BackgroundService
     /// <remarks>
     /// Override this method to add tasks to the service.
     /// </remarks>
-    protected virtual Task OnExecuteAsync(CancellationToken cancellationToken) =>
-        Task.CompletedTask;
+    protected virtual Task OnExecuteAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }
